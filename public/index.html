@@ -17,12 +17,16 @@
     />
   </head>
   <body>
-    <div id="app" class="flex flex-column">
+    <div id="app">
       <h1>Drawing App</h1>
+      <canvas
+        id="canvas"
+        width="500"
+        height="300"
+        style="background-color: darkgrey;"
+      ></canvas>
       <form>
-        <input type="text" name="coordX" placeholder="X coordinate" id="x-input"></input>
-        <input type="text" name="coordY" placeholder="Y coordinate" id="y-input"></input>
-        <button type="submit">Submit</button>
+        <button id="clear">Clear</button>
       </form>
       <ul class="coords"></ul>
     </div>

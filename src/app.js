@@ -1,40 +1,57 @@
-const path = require("path");
-const favicon = require("serve-favicon");
-const compress = require("compression");
-const helmet = require("helmet");
-const cors = require("cors");
-const logger = require("./logger");
+const path = require('path');
+const favicon = require('serve-favicon');
+const compress = require('compression');
+const helmet = require('helmet');
+const cors = require('cors');
+const logger = require('./logger');
 
-const feathers = require("@feathersjs/feathers");
-const configuration = require("@feathersjs/configuration");
-const express = require("@feathersjs/express");
-const socketio = require("@feathersjs/socketio");
+const feathers = require('@feathersjs/feathers');
+const configuration = require('@feathersjs/configuration');
+const express = require('@feathersjs/express');
+const socketio = require('@feathersjs/socketio');
 
 class DrawingService {
   constructor() {
-    this.points = [];
+    this.x = [];
+    this.y = [];
+    this.firstX;
+    this.lastX;
+    this.id = 0;
   }
 
   async find() {
-    return this.points;
+    const { x, y, firstX, lastX } = this;
+    return { x, y, firstX, lastX };
   }
 
-  async create(data) {
-    const point = {
-      x: data.x,
-      y: data.y
-    };
-    this.points.push(point);
-    return point;
+  async create({ x, y }) {
+    this.x.push(x);
+    this.y.push(y);
+    return { x, y };
+  }
+
+  async update(id, { firstX = null, lastX = null }) {
+    if (firstX) this.firstX = firstX;
+    if (lastX) this.lastX = lastX;
+    return { firstX, lastX };
+  }
+
+  async remove(id) {
+    if (id === 0) {
+      this.x = [];
+      this.y = [];
+      const { x, y } = this;
+      return { x, y };
+    }
   }
 }
 
-const middleware = require("./middleware");
-const services = require("./services");
-const appHooks = require("./app.hooks");
-const channels = require("./channels");
+const middleware = require('./middleware');
+const services = require('./services');
+const appHooks = require('./app.hooks');
+const channels = require('./channels');
 
-const authentication = require("./authentication");
+const authentication = require('./authentication');
 
 const app = express(feathers());
 
@@ -46,15 +63,15 @@ app.use(cors());
 app.use(compress());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(favicon(path.join(app.get("public"), "favicon.ico")));
+app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
-app.use("/", express.static(app.get("public")));
+app.use('/', express.static(app.get('public')));
 
 // Set up Plugins and providers
 app.configure(express.rest());
 app.configure(socketio());
 
-app.use("/draw", new DrawingService());
+app.use('/draw', new DrawingService());
 
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware);
@@ -64,12 +81,12 @@ app.configure(services);
 // Set up event channels (see channels.js)
 app.configure(channels);
 
-app.on("connection", connection => app.channel("everybody").join(connection));
-app.publish(data => app.channel("everybody"));
+app.on('connection', connection => app.channel('everybody').join(connection));
+app.publish(data => app.channel('everybody'));
 
 app.hooks(appHooks);
 
-app.service("draw").create({
+app.service('draw').create({
   x: 25,
   y: 5
 });
