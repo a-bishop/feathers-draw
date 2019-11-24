@@ -14,14 +14,13 @@ class DrawingService {
   constructor() {
     this.x = [];
     this.y = [];
-    this.firstX;
-    this.lastX;
+    this.firstXIdx = 0;
     this.id = 0;
   }
 
   async find() {
-    const { x, y, firstX, lastX } = this;
-    return { x, y, firstX, lastX };
+    const { x, y, firstXIdx } = this;
+    return { x, y, firstXIdx };
   }
 
   async create({ x, y }) {
@@ -30,19 +29,17 @@ class DrawingService {
     return { x, y };
   }
 
-  async update(id, { firstX = null, lastX = null }) {
-    if (firstX) this.firstX = firstX;
-    if (lastX) this.lastX = lastX;
-    return { firstX, lastX };
+  async update(_id, _data) {
+    this.firstXIdx = this.x.length;
+    const { firstXIdx } = this;
+    return { firstXIdx };
   }
 
-  async remove(id) {
-    if (id === 0) {
-      this.x = [];
-      this.y = [];
-      const { x, y } = this;
-      return { x, y };
-    }
+  async remove(_id) {
+    this.x = [];
+    this.y = [];
+    const { x, y } = this;
+    return { x, y };
   }
 }
 
