@@ -4,21 +4,29 @@ const client = feathers();
 
 client.configure(feathers.socketio(socket));
 
-const clearButton = document.querySelector('#clear');
-
-clearButton.addEventListener('click', async ev => {
-  await client.service('draw').remove(0);
-});
-
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
-let painting = false;
-let firstXRecorded = false;
+const clearButton = document.querySelector('#clear');
 
-canvas.addEventListener('mousedown', () => {
+let painting = false;
+let firstPointRecorded = false;
+let uuid = null;
+
+clearButton.addEventListener('click', async ev => {
+  ev.preventDefault();
+  await client.service('drawing').remove(uuid);
+  firstPointRecorded = false;
+});
+
+canvas.addEventListener('mousedown', async () => {
   painting = true;
-  firstXRecorded = false;
+  if (!firstPointRecorded) uuid = uuidv4();
+  if (firstPointRecorded) {
+    await client
+      .service('drawing')
+      .patch(uuid, { newX: 0, newY: 0, recordNewMouseDownIdx: true });
+  }
 });
 
 canvas.addEventListener('mouseup', () => {
@@ -29,22 +37,24 @@ canvas.addEventListener('mousemove', async ev => {
   if (painting) {
     const x = ev.x - canvas.offsetLeft;
     const y = ev.y - canvas.offsetTop;
-    if (!firstXRecorded) {
-      firstXRecorded = true;
-      await client.service('draw').update(null, {});
+    if (!firstPointRecorded) {
+      firstPointRecorded = true;
+      await client.service('drawing').create({ _id: uuid, x: [x], y: [y] });
     }
-    await client.service('draw').create({ x, y });
+    await client
+      .service('drawing')
+      .patch(uuid, { newX: x, newY: y, recordNewMouseDownIdx: false });
   }
 });
 
 const draw = async () => {
-  let { x, y, firstXIdx } = await client.service('draw').find();
+  let { x, y, mouseDownIdx } = await client.service('drawing').get(uuid);
 
   context.strokeStyle = '#fff';
   context.lineJoin = 'round';
   context.lineWidth = 5;
 
-  for (let i = firstXIdx + 1; i < x.length; i++) {
+  for (let i = mouseDownIdx + 1; i < x.length; i++) {
     context.beginPath();
     context.moveTo(x[i - 1], y[i - 1]);
     context.lineTo(x[i], y[i]);
@@ -55,7 +65,9 @@ const draw = async () => {
 
 function clear() {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+  firstPointRecorded = false;
 }
 
-client.service('draw').on('created', draw);
-client.service('draw').on('removed', clear);
+client.service('drawing').on('created', data => (uuid = data._id));
+client.service('drawing').on('patched', draw);
+client.service('drawing').on('removed', clear);
