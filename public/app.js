@@ -20,81 +20,69 @@ let firstPointRecorded = false;
 let uuid = null;
 let localLine = { x: [], y: [] };
 
-clearButton.addEventListener('click', async ev => {
-  ev.preventDefault();
-  clear();
-  await client.service('drawing').remove(uuid);
-  firstPointRecorded = false;
-  localLine = { x: [], y: [] };
-});
+['click', 'touchstart'].forEach(eventType =>
+  clearButton.addEventListener(eventType, async e => {
+    e.preventDefault();
+    clear();
+    await client.service('drawing').remove(uuid);
+    firstPointRecorded = false;
+    localLine = { x: [], y: [] };
+  })
+);
 
-const start = async () => {
-  painting = true;
-  if (!firstPointRecorded) {
-    uuid = uuidv4();
-  } else {
-    await client
-      .service('drawing')
-      .patch(uuid, { recordNewMouseDownIdx: true, penColor });
-  }
-  localLine.color = penColor;
-  localLine.mouseDownIdx = localLine.x.length;
-};
-
-const move = async (newX, newY) => {
-  if (painting) {
-    localLine = {
-      y: localLine.y.push(newY),
-      x: localLine.x.push(newX),
-      ...localLine
-    };
+['mousedown', 'touchstart'].forEach(eventType =>
+  canvas.addEventListener(eventType, async e => {
+    e.preventDefault();
+    painting = true;
     if (!firstPointRecorded) {
-      firstPointRecorded = true;
+      uuid = uuidv4();
+    } else {
       await client
         .service('drawing')
-        .create({ _id: uuid, x: [newX], y: [newY], penColor });
+        .patch(uuid, { recordNewMouseDownIdx: true, penColor });
     }
-    await client.service('drawing').patch(uuid, {
-      newX,
-      newY,
-      penColor
-    });
-    draw(uuid, { isWebSocket: false });
-  }
-};
+    localLine.color = penColor;
+    localLine.mouseDownIdx = localLine.x.length;
+  })
+);
 
-const end = () => {
-  painting = false;
-};
+['mousemove', 'touchmove'].forEach(eventType =>
+  canvas.addEventListener(eventType, async e => {
+    e.preventDefault();
+    const mouseEvent = eventType === 'mousemove';
+    const newX = mouseEvent
+      ? e.x - canvas.offsetLeft
+      : e.touches[0].clientX - canvas.offsetLeft;
+    const newY = mouseEvent
+      ? e.y - canvas.offsetTop
+      : e.touches[0].clientY - canvas.offsetTop;
+    if (painting) {
+      localLine = {
+        y: localLine.y.push(newY),
+        x: localLine.x.push(newX),
+        ...localLine
+      };
+      if (!firstPointRecorded) {
+        firstPointRecorded = true;
+        await client
+          .service('drawing')
+          .create({ _id: uuid, x: [newX], y: [newY], penColor });
+      }
+      await client.service('drawing').patch(uuid, {
+        newX,
+        newY,
+        penColor
+      });
+      draw(uuid, { isWebSocket: false });
+    }
+  })
+);
 
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  start();
-});
-
-canvas.addEventListener('mousedown', start);
-
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const x = e.touches[0].clientX - canvas.offsetLeft;
-  const y = e.touches[0].clientY - canvas.offsetTop;
-  move(x, y);
-});
-
-canvas.addEventListener('mousemove', e => {
-  const x = e.x - canvas.offsetLeft;
-  const y = e.y - canvas.offsetTop;
-  move(x, y);
-});
-
-canvas.addEventListener('touchend', e => {
-  e.preventDefault();
-  end();
-});
-
-canvas.addEventListener('mouseup', end);
-
-// element.addEventListener('touchcancel', );
+['mouseup', 'touchend'].forEach(eventType =>
+  canvas.addEventListener(eventType, () => {
+    painting = false;
+  })
+);
 
 const draw = async (id, { isWebSocket = true } = {}) => {
   let x, y, mouseDownIdx, color;
