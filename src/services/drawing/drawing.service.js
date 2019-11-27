@@ -4,10 +4,12 @@ const createModel = require('../../models/drawing.model');
 const hooks = require('./drawing.hooks');
 
 module.exports = function(app) {
+  const neDBModel = createModel(app);
+  neDBModel.persistence.setAutocompactionInterval(30000);
+
   const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    whitelist: ['$push']
+    Model: neDBModel,
+    paginate: app.get('paginate')
   };
 
   // Initialize our service with any options it requires

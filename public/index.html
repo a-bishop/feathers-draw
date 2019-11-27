@@ -5,7 +5,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0"
     />
-    <title>FeathersJS chat</title>
+    <title>FeathersJS drawing app</title>
     <link rel="shortcut icon" href="favicon.ico" />
     <link
       rel="stylesheet"
@@ -18,17 +18,34 @@
   </head>
   <body>
     <div id="app">
-      <h1>Drawing App</h1>
+      <h1 id="title">Drawing App</h1>
       <canvas
         id="canvas"
         width="500"
         height="300"
         style="background-color: darkgrey; border:solid black 1px;"
       ></canvas>
-      <form>
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; width: 400; padding-top: 10px;"
+      >
         <button id="clear">Clear</button>
-      </form>
-      <ul class="coords"></ul>
+        <div>Choose color:</div>
+        <div
+          id="red"
+          class="colors"
+          style="background-color: red; width: 30px; height: 30px; border: 1px solid black;"
+        ></div>
+        <div
+          id="blue"
+          class="colors"
+          style="background-color: blue; width: 30px; height: 30px; border: 1px solid black;"
+        ></div>
+        <div
+          id="green"
+          class="colors"
+          style="background-color: green; width: 30px; height: 30px; border: 1px solid black;"
+        ></div>
+      </div>
     </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.js"></script>
     <script src="//unpkg.com/@feathersjs/client@^4.3.0/dist/feathers.js"></script>
