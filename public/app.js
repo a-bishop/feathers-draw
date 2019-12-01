@@ -13,7 +13,6 @@ colorNodes.forEach(node =>
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 const clearButton = document.querySelector('#clearButton');
-// const title = document.querySelector('#title');
 
 let painting = false;
 let firstPointRecorded = false;
@@ -58,7 +57,6 @@ function uuidv4() {
   canvas.addEventListener(eventType, async e => {
     if (painting) {
       e.preventDefault();
-      console.log(e);
       const mouseEvent = eventType === 'mousemove';
       const newX = mouseEvent
         ? e.clientX - e.target.offsetLeft
@@ -82,7 +80,7 @@ function uuidv4() {
         newY,
         penColor
       });
-      draw(uuid, { isLocalLine: true });
+      draw({ ...localLine });
     }
   })
 );
@@ -94,15 +92,7 @@ function uuidv4() {
   })
 );
 
-const draw = async (id, { isLocalLine = false } = {}) => {
-  let x, y, mouseDownIdx, color;
-  if (!isLocalLine) {
-    ({ x, y, mouseDownIdx, color } = await client.service('drawing').get(id));
-  } else {
-    ({ x, y, mouseDownIdx, color } = localLine);
-  }
-
-  console.log(color);
+const draw = async ({ x, y, mouseDownIdx, color }) => {
   context.strokeStyle = `${color}`;
   context.lineJoin = 'round';
   context.lineWidth = 5;
@@ -122,7 +112,7 @@ function clear() {
 }
 
 client.service('drawing').on('patched', data => {
-  if (data._id !== uuid) draw(data._id);
+  if (data._id !== uuid) draw({ ...data });
 });
 
 client.service('drawing').on('removed', clear);
