@@ -6,6 +6,10 @@
 
 This project uses [Feathers](http://feathersjs.com). An open source web framework for building modern real-time applications.
 
+Currently the app allows multiple users visiting the site at the same time to collaborate on the same drawing, thanks to web socket connections.
+
+TODO: Add persistence between page loads
+
 ## Getting Started
 
 Getting up and running is as easy as 1, 2, 3.
