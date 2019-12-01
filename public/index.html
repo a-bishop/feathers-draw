@@ -44,7 +44,7 @@
         font-family: 'Nightfall';
       }
 
-      .mainContainer {
+      .flexColumnContainer {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -59,45 +59,63 @@
       #clearButton {
         cursor: pointer;
         padding: 2rem;
+        margin: 2rem;
         font-size: 2rem;
         border-radius: 10px;
+        max-width: 10rem;
+      }
+
+      #interactiveBar {
+        display: flex;
+        flex-direction: row;
+        max-width: 80rem;
+        align-items: center;
+        justify-content: space-around;
+      }
+
+      @media only screen and (max-width: 600px) {
+        #interactiveBar {
+          flex-direction: column;
+        }
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <div class="mainContainer">
+      <div class="flexColumnContainer">
         <h1 id="title" class="text">Outdraw</h1>
         <canvas width="700px" height="400px"></canvas>
-        <div
-          style="display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 500px;
-          padding-top: 10px;"
-        >
+        <div id="interactiveBar">
+          <div
+            style="display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 350px;
+            padding-top: 1rem;"
+          >
+            <h3 class="text">Choose pen color:</h3>
+            <div
+              id="rgba(215, 217, 215, 1)"
+              class="colorBox colors"
+              style="background-color: rgba(215, 217, 215, 1);"
+            ></div>
+            <div
+              id="rgba(219, 80, 74, 1)"
+              class="colorBox colors"
+              style="background-color: rgba(219, 80, 74, 1);"
+            ></div>
+            <div
+              id="rgba(89, 131, 146, 1)"
+              class="colorBox colors"
+              style="background-color: rgba(89, 131, 146, 1);"
+            ></div>
+            <div
+              id="rgba(215, 180, 158, 1)"
+              class="colorBox colors"
+              style="background-color: rgba(215, 180, 158, 1);"
+            ></div>
+          </div>
           <button class="text" id="clearButton">Clear</button>
-          <h3 class="text">Choose pen color:</h3>
-          <div
-            id="rgba(215, 217, 215, 1)"
-            class="colorBox colors"
-            style="background-color: rgba(215, 217, 215, 1);"
-          ></div>
-          <div
-            id="rgba(219, 80, 74, 1)"
-            class="colorBox colors"
-            style="background-color: rgba(219, 80, 74, 1);"
-          ></div>
-          <div
-            id="rgba(89, 131, 146, 1)"
-            class="colorBox colors"
-            style="background-color: rgba(89, 131, 146, 1);"
-          ></div>
-          <div
-            id="rgba(215, 180, 158, 1)"
-            class="colorBox colors"
-            style="background-color: rgba(215, 180, 158, 1);"
-          ></div>
         </div>
       </div>
       <!-- End mainContainer -->
