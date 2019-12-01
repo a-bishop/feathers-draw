@@ -6,7 +6,7 @@
 
 This project uses [Feathers](http://feathersjs.com). An open source web framework for building modern real-time applications.
 
-Currently the app allows multiple users visiting the site at the same time to collaborate on the same drawing, thanks to web socket connections and neDB, an embedded persistent in-memory database https://github.com/louischatriot/nedb
+Currently the app allows multiple users visiting the site at the same time to collaborate on the same drawing, thanks to web socket connections and neDB, an embedded in-memory database https://github.com/louischatriot/nedb
 
 TODO: Add drawing persistence between page loads
 
