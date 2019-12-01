@@ -4,7 +4,7 @@ const client = feathers();
 
 client.configure(feathers.socketio(socket));
 
-let penColor = 'red';
+let penColor = 'rgba(215, 217, 215, 1)';
 const colorNodes = document.querySelectorAll('.colors');
 colorNodes.forEach(node =>
   node.addEventListener('click', () => (penColor = node.id))
@@ -12,8 +12,8 @@ colorNodes.forEach(node =>
 
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
-
-const clearButton = document.querySelector('#clear');
+const clearButton = document.querySelector('#clearButton');
+// const title = document.querySelector('#title');
 
 let painting = false;
 let firstPointRecorded = false;
@@ -48,15 +48,16 @@ let localLine = { x: [], y: [] };
 
 ['mousemove', 'touchmove'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
-    e.preventDefault();
-    const mouseEvent = eventType === 'mousemove';
-    const newX = mouseEvent
-      ? e.x - canvas.offsetLeft
-      : e.touches[0].clientX - canvas.offsetLeft;
-    const newY = mouseEvent
-      ? e.y - canvas.offsetTop
-      : e.touches[0].clientY - canvas.offsetTop;
     if (painting) {
+      e.preventDefault();
+      console.log(e);
+      const mouseEvent = eventType === 'mousemove';
+      const newX = mouseEvent
+        ? e.clientX - e.target.offsetLeft
+        : e.touches[0].clientX - e.target.offsetLeft;
+      const newY = mouseEvent
+        ? e.clientY - e.target.offsetTop
+        : e.touches[0].clientY - e.target.offsetTop;
       localLine = {
         y: localLine.y.push(newY),
         x: localLine.x.push(newX),
@@ -73,26 +74,28 @@ let localLine = { x: [], y: [] };
         newY,
         penColor
       });
-      draw(uuid, { isWebSocket: false });
+      draw(uuid, { isLocalLine: true });
     }
   })
 );
 
-['mouseup', 'touchend'].forEach(eventType =>
-  canvas.addEventListener(eventType, () => {
+['mouseup', 'touchend', 'touchcancel'].forEach(eventType =>
+  canvas.addEventListener(eventType, e => {
+    e.preventDefault();
     painting = false;
   })
 );
 
-const draw = async (id, { isWebSocket = true } = {}) => {
+const draw = async (id, { isLocalLine = false } = {}) => {
   let x, y, mouseDownIdx, color;
-  if (isWebSocket) {
+  if (!isLocalLine) {
     ({ x, y, mouseDownIdx, color } = await client.service('drawing').get(id));
   } else {
     ({ x, y, mouseDownIdx, color } = localLine);
   }
 
-  context.strokeStyle = color;
+  console.log(color);
+  context.strokeStyle = `${color}`;
   context.lineJoin = 'round';
   context.lineWidth = 5;
 

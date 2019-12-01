@@ -3,7 +3,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0"
+      content="initial-scale=1.0, maximum-scale=1, user-scalable=0"
     />
     <title>FeathersJS drawing app</title>
     <link rel="shortcut icon" href="favicon.ico" />
@@ -15,37 +15,92 @@
       rel="stylesheet"
       href="//unpkg.com/feathers-chat@4.0.0/public/chat.css"
     />
+    <style>
+      @font-face {
+        font-family: 'Nightfall';
+        src: url('./fonts/nightfall.ttf') format('truetype');
+      }
+
+      html {
+        font-size: 10px;
+      }
+
+      h1 {
+        font-size: 6rem;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 3rem;
+      }
+
+      canvas {
+        background-color: #282c34;
+        border: solid black 1px;
+        cursor: crosshair;
+      }
+
+      .text {
+        font-family: 'Nightfall';
+      }
+
+      .mainContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .colorBox {
+        width: 40px;
+        height: 40px;
+        border: 2px solid grey;
+      }
+
+      #clearButton {
+        cursor: pointer;
+        padding: 2rem;
+        font-size: 2rem;
+        border-radius: 10px;
+      }
+    </style>
   </head>
   <body>
     <div id="app">
-      <h1 id="title">Drawing App</h1>
-      <canvas
-        id="canvas"
-        width="500"
-        height="300"
-        style="background-color: darkgrey; border:solid black 1px;"
-      ></canvas>
-      <div
-        style="display: flex; justify-content: space-between; align-items: center; width: 400; padding-top: 10px;"
-      >
-        <button id="clear">Clear</button>
-        <div>Choose color:</div>
+      <div class="mainContainer">
+        <h1 id="title" class="text">Outdraw</h1>
+        <canvas width="700px" height="400px"></canvas>
         <div
-          id="red"
-          class="colors"
-          style="background-color: red; width: 30px; height: 30px; border: 1px solid black;"
-        ></div>
-        <div
-          id="blue"
-          class="colors"
-          style="background-color: blue; width: 30px; height: 30px; border: 1px solid black;"
-        ></div>
-        <div
-          id="green"
-          class="colors"
-          style="background-color: green; width: 30px; height: 30px; border: 1px solid black;"
-        ></div>
+          style="display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 500px;
+          padding-top: 10px;"
+        >
+          <button class="text" id="clearButton">Clear</button>
+          <h3 class="text">Choose pen color:</h3>
+          <div
+            id="rgba(215, 217, 215, 1)"
+            class="colorBox colors"
+            style="background-color: rgba(215, 217, 215, 1);"
+          ></div>
+          <div
+            id="rgba(219, 80, 74, 1)"
+            class="colorBox colors"
+            style="background-color: rgba(219, 80, 74, 1);"
+          ></div>
+          <div
+            id="rgba(89, 131, 146, 1)"
+            class="colorBox colors"
+            style="background-color: rgba(89, 131, 146, 1);"
+          ></div>
+          <div
+            id="rgba(215, 180, 158, 1)"
+            class="colorBox colors"
+            style="background-color: rgba(215, 180, 158, 1);"
+          ></div>
+        </div>
       </div>
+      <!-- End mainContainer -->
     </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.js"></script>
     <script src="//unpkg.com/@feathersjs/client@^4.3.0/dist/feathers.js"></script>
