@@ -49,4 +49,6 @@ app.hooks(appHooks);
 app.use(express.notFound());
 app.use(express.errorHandler({ logger }));
 
+console.log(app.get('env'));
+
 module.exports = app;

@@ -4,20 +4,19 @@ const client = feathers();
 
 client.configure(feathers.socketio(socket));
 
-let penColor = 'rgba(215, 217, 215, 1)';
 const colorNodes = document.querySelectorAll('.colors');
+let color = colorNodes[0].id;
 colorNodes.forEach(node =>
-  node.addEventListener('click', () => (penColor = node.id))
+  node.addEventListener('click', () => (color = node.id))
 );
 
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 const clearButton = document.querySelector('#clearButton');
 
-let painting = false;
+let isDrawing = false;
 let firstPointRecorded = false;
 let uuid = null;
-let localLine = { x: [], y: [] };
 
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -33,29 +32,27 @@ function uuidv4() {
     clear();
     await client.service('drawing').remove(uuid);
     firstPointRecorded = false;
-    localLine = { x: [], y: [] };
   })
 );
 
 ['mousedown', 'touchstart'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
     e.preventDefault();
-    painting = true;
+    isDrawing = true;
     if (!firstPointRecorded) {
       uuid = uuidv4();
     } else {
       await client
         .service('drawing')
-        .patch(uuid, { recordNewMouseDownIdx: true, penColor });
+        .patch(uuid, { recordNewMouseDownIdx: true, color });
     }
-    localLine.color = penColor;
-    localLine.mouseDownIdx = localLine.x.length;
   })
 );
 
 ['mousemove', 'touchmove'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
-    if (painting) {
+    if (isDrawing) {
+      // console.log(isDrawing);
       e.preventDefault();
       const mouseEvent = eventType === 'mousemove';
       const newX = mouseEvent
@@ -64,23 +61,17 @@ function uuidv4() {
       const newY = mouseEvent
         ? e.clientY - e.target.offsetTop
         : e.touches[0].clientY - e.target.offsetTop;
-      localLine = {
-        y: localLine.y.push(newY),
-        x: localLine.x.push(newX),
-        ...localLine
-      };
       if (!firstPointRecorded) {
         firstPointRecorded = true;
         await client
           .service('drawing')
-          .create({ _id: uuid, x: [newX], y: [newY], penColor });
+          .create({ _id: uuid, x: [newX], y: [newY], color });
       }
       await client.service('drawing').patch(uuid, {
         newX,
         newY,
-        penColor
+        color
       });
-      draw({ ...localLine });
     }
   })
 );
@@ -88,12 +79,14 @@ function uuidv4() {
 ['mouseup', 'touchend', 'touchcancel'].forEach(eventType =>
   canvas.addEventListener(eventType, e => {
     e.preventDefault();
-    painting = false;
+    isDrawing = false;
   })
 );
 
-const draw = async ({ x, y, mouseDownIdx, color }) => {
-  context.strokeStyle = `${color}`;
+const draw = async ({ x, y, mouseDownIdx, penColor }) => {
+  console.log('drawing');
+  console.log(penColor);
+  context.strokeStyle = `${penColor}`;
   context.lineJoin = 'round';
   context.lineWidth = 5;
 
@@ -112,7 +105,7 @@ function clear() {
 }
 
 client.service('drawing').on('patched', data => {
-  if (data._id !== uuid) draw({ ...data });
+  draw({ ...data });
 });
 
 client.service('drawing').on('removed', clear);
