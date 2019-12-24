@@ -26,6 +26,20 @@ function uuidv4() {
   });
 }
 
+function getNewX(e, type) {
+  const mouseEvent = type.includes('mouse');
+  return mouseEvent
+    ? e.clientX - e.target.offsetLeft
+    : e.touches[0].clientX - e.target.offsetLeft;
+}
+
+function getNewY(e, type) {
+  const mouseEvent = type.includes('mouse');
+  return mouseEvent
+    ? e.clientY - e.target.offsetTop
+    : e.touches[0].clientY - e.target.offsetTop;
+}
+
 ['click', 'touchstart'].forEach(eventType =>
   clearButton.addEventListener(eventType, async e => {
     e.preventDefault();
@@ -39,8 +53,14 @@ function uuidv4() {
   canvas.addEventListener(eventType, async e => {
     e.preventDefault();
     isDrawing = true;
+    const newX = getNewX(e, eventType);
+    const newY = getNewY(e, eventType);
     if (!firstPointRecorded) {
       uuid = uuidv4();
+      firstPointRecorded = true;
+      await client
+        .service('drawing')
+        .create({ _id: uuid, x: [newX], y: [newY], color });
     } else {
       await client
         .service('drawing')
@@ -52,21 +72,9 @@ function uuidv4() {
 ['mousemove', 'touchmove'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
     if (isDrawing) {
-      // console.log(isDrawing);
       e.preventDefault();
-      const mouseEvent = eventType === 'mousemove';
-      const newX = mouseEvent
-        ? e.clientX - e.target.offsetLeft
-        : e.touches[0].clientX - e.target.offsetLeft;
-      const newY = mouseEvent
-        ? e.clientY - e.target.offsetTop
-        : e.touches[0].clientY - e.target.offsetTop;
-      if (!firstPointRecorded) {
-        firstPointRecorded = true;
-        await client
-          .service('drawing')
-          .create({ _id: uuid, x: [newX], y: [newY], color });
-      }
+      const newX = getNewX(e, eventType);
+      const newY = getNewY(e, eventType);
       await client.service('drawing').patch(uuid, {
         newX,
         newY,
@@ -84,8 +92,6 @@ function uuidv4() {
 );
 
 const draw = async ({ x, y, mouseDownIdx, penColor }) => {
-  console.log('drawing');
-  console.log(penColor);
   context.strokeStyle = `${penColor}`;
   context.lineJoin = 'round';
   context.lineWidth = 5;
