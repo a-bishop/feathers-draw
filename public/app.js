@@ -27,17 +27,15 @@ function uuidv4() {
 }
 
 function getNewX(e, type) {
+  const rect = canvas.getBoundingClientRect();
   const mouseEvent = type.includes('mouse');
-  return mouseEvent
-    ? e.clientX - e.target.offsetLeft
-    : e.touches[0].clientX - e.target.offsetLeft;
+  return mouseEvent ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
 }
 
 function getNewY(e, type) {
+  const rect = canvas.getBoundingClientRect();
   const mouseEvent = type.includes('mouse');
-  return mouseEvent
-    ? e.clientY - e.target.offsetTop
-    : e.touches[0].clientY - e.target.offsetTop;
+  return mouseEvent ? e.clientY - rect.top : e.touches[0].clientY - rect.top;
 }
 
 ['click', 'touchstart'].forEach(eventType =>
