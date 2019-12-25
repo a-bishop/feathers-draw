@@ -49,7 +49,7 @@ function getNewY(e, type) {
   clearButton.addEventListener(eventType, async e => {
     e.preventDefault();
     clear();
-    await client.service('drawing').remove(uuid);
+    await client.service('drawing').remove(null);
   })
 );
 
