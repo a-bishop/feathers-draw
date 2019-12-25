@@ -18,6 +18,13 @@ let isDrawing = false;
 let firstPointRecorded = false;
 let uuid = null;
 
+findAll();
+
+async function findAll() {
+  const items = await client.service('drawing').find();
+  items.data.forEach(item => draw(item));
+}
+
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     var r = (Math.random() * 16) | 0,
@@ -43,19 +50,18 @@ function getNewY(e, type) {
     e.preventDefault();
     clear();
     await client.service('drawing').remove(uuid);
-    firstPointRecorded = false;
   })
 );
 
 ['mousedown', 'touchstart'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
     e.preventDefault();
-    isDrawing = true;
     const newX = getNewX(e, eventType);
     const newY = getNewY(e, eventType);
+    isDrawing = true;
     if (!firstPointRecorded) {
-      uuid = uuidv4();
       firstPointRecorded = true;
+      uuid = uuidv4();
       await client
         .service('drawing')
         .create({ _id: uuid, x: [newX], y: [newY], color });
@@ -104,8 +110,8 @@ const draw = async ({ x, y, mouseDownIdx, penColor }) => {
 };
 
 function clear() {
-  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   firstPointRecorded = false;
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
 client.service('drawing').on('patched', data => {

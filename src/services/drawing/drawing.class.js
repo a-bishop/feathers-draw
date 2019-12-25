@@ -39,9 +39,8 @@ exports.Drawing = class Drawing extends Service {
     this.options.Model.persistence.compactDatafile();
     try {
       await super.remove(id);
-      return true;
     } catch (e) {
-      return true;
+      console.log(e);
     }
   }
 };

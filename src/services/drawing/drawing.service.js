@@ -5,9 +5,9 @@ const hooks = require('./drawing.hooks');
 
 module.exports = function(app) {
   const neDBModel = createModel(app);
-  neDBModel.persistence.setAutocompactionInterval(30000);
 
   const options = {
+    multi: true,
     Model: neDBModel,
     paginate: app.get('paginate')
   };
