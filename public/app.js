@@ -15,7 +15,6 @@ const context = canvas.getContext('2d');
 const clearButton = document.querySelector('#clearButton');
 
 let isDrawing = false;
-let firstPointRecorded = false;
 let uuid = null;
 
 findAll();
@@ -59,17 +58,10 @@ function getNewY(e, type) {
     const newX = getNewX(e, eventType);
     const newY = getNewY(e, eventType);
     isDrawing = true;
-    if (!firstPointRecorded) {
-      firstPointRecorded = true;
-      uuid = uuidv4();
-      await client
-        .service('drawing')
-        .create({ _id: uuid, x: [newX], y: [newY], color });
-    } else {
-      await client
-        .service('drawing')
-        .patch(uuid, { recordNewMouseDownIdx: true, color });
-    }
+    uuid = uuidv4();
+    await client
+      .service('drawing')
+      .create({ _id: uuid, x: [newX], y: [newY], color });
   })
 );
 
@@ -95,12 +87,12 @@ function getNewY(e, type) {
   })
 );
 
-const draw = async ({ x, y, mouseDownIdx, penColor }) => {
+const draw = async ({ x, y, penColor }) => {
   context.strokeStyle = `${penColor}`;
   context.lineJoin = 'round';
   context.lineWidth = 5;
 
-  for (let i = mouseDownIdx + 1; i < x.length; i++) {
+  for (let i = 1; i < x.length; i++) {
     context.beginPath();
     context.moveTo(x[i - 1], y[i - 1]);
     context.lineTo(x[i], y[i]);
