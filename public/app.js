@@ -17,12 +17,11 @@ const clearButton = document.querySelector('#clearButton');
 let isDrawing = false;
 let uuid = null;
 
-findAll();
-
 async function findAll() {
   const items = await client.service('drawing').find();
   items.data.forEach(item => draw(item));
 }
+findAll();
 
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
