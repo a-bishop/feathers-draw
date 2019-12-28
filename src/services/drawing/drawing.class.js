@@ -2,11 +2,15 @@ const { Service } = require('feathers-nedb');
 
 exports.Drawing = class Drawing extends Service {
   async find() {
-    return super.find({});
+    return super.find({
+      query: {
+        $sort: { createdAt: 1 }
+      }
+    });
   }
 
   async create({ _id, x, y, color }) {
-    return super.create({ _id, x, y, penColor: color });
+    return super.create({ _id, createdAt: new Date(), x, y, penColor: color });
   }
 
   async patch(id, { newX = 0, newY = 0, color }) {

@@ -3,8 +3,8 @@
   "port": 3030,
   "public": "../public/",
   "paginate": {
-    "default": 300,
-    "max": 300
+    "default": 500,
+    "max": 500
   },
   "authentication": {
     "entity": "user",

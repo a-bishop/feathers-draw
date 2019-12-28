@@ -14,8 +14,22 @@ const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 const clearButton = document.querySelector('#clearButton');
 
+var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+var h = Math.max(
+  document.documentElement.clientHeight,
+  window.innerHeight || 0
+);
+
+console.log(w);
+
+if (w < 900) {
+  canvas.width = w;
+}
+
+console.log(canvas.width);
+
 let isDrawing = false;
-let uuid = null;
+let uuid;
 
 (async () => {
   const items = await client.service('drawing').find();
