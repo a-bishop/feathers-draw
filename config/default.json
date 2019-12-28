@@ -3,17 +3,14 @@
   "port": 3030,
   "public": "../public/",
   "paginate": {
-    "default": 10,
-    "max": 50
+    "default": 300,
+    "max": 300
   },
   "authentication": {
     "entity": "user",
     "service": "users",
     "secret": "/vKIJLvEZfsWu4UE8NE5ZOo8mtQ=",
-    "authStrategies": [
-      "jwt",
-      "local"
-    ],
+    "authStrategies": ["jwt", "local"],
     "jwtOptions": {
       "header": {
         "typ": "access"
@@ -32,11 +29,7 @@
       "google": {
         "key": "<google oauth key>",
         "secret": "<google oauth secret>",
-        "scope": [
-          "email",
-          "profile",
-          "openid"
-        ]
+        "scope": ["email", "profile", "openid"]
       },
       "facebook": {
         "key": "<facebook oauth key>",

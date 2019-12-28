@@ -2,7 +2,7 @@ const { Service } = require('feathers-nedb');
 
 exports.Drawing = class Drawing extends Service {
   async find() {
-    return super.find();
+    return super.find({});
   }
 
   async create({ _id, x, y, color }) {
@@ -26,6 +26,7 @@ exports.Drawing = class Drawing extends Service {
   async remove(id) {
     try {
       await super.remove(id);
+      this.options.Model.persistence.compactDatafile();
     } catch (e) {
       console.log(e);
     }

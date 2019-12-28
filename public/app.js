@@ -17,11 +17,12 @@ const clearButton = document.querySelector('#clearButton');
 let isDrawing = false;
 let uuid = null;
 
-async function findAll() {
+(async () => {
   const items = await client.service('drawing').find();
-  items.data.forEach(item => draw(item));
-}
-findAll();
+  items.data.forEach(item => {
+    draw(item);
+  });
+})();
 
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -86,8 +87,8 @@ function getNewY(e, type) {
   })
 );
 
-const draw = async ({ x, y, penColor }) => {
-  context.strokeStyle = `${penColor}`;
+const draw = ({ x, y, penColor }) => {
+  context.strokeStyle = penColor;
   context.lineJoin = 'round';
   context.lineWidth = 5;
 
