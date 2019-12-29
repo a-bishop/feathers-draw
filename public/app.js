@@ -6,6 +6,7 @@ client.configure(feathers.socketio(socket));
 
 const colorNodes = document.querySelectorAll('.colors');
 let color = colorNodes[0].id;
+
 colorNodes.forEach(node =>
   node.addEventListener('click', () => (color = node.id))
 );
@@ -32,31 +33,27 @@ function uuidv4() {
   });
 }
 
-function getNewX(e, type) {
+function getNewCoords(e, type) {
   const rect = canvas.getBoundingClientRect();
-  const mouseEvent = type.includes('mouse');
-  return mouseEvent ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
-}
-
-function getNewY(e, type) {
-  const rect = canvas.getBoundingClientRect();
-  const mouseEvent = type.includes('mouse');
-  return mouseEvent ? e.clientY - rect.top : e.touches[0].clientY - rect.top;
+  const isMouseEvent = type.includes('mouse');
+  const newX = isMouseEvent
+    ? e.clientX - rect.left
+    : e.touches[0].clientX - rect.left;
+  const newY = isMouseEvent
+    ? e.clientY - rect.top
+    : e.touches[0].clientY - rect.top;
+  return { newX, newY };
 }
 
 ['click', 'touchstart'].forEach(eventType =>
-  clearButton.addEventListener(eventType, async e => {
-    e.preventDefault();
-    clear();
+  clearButton.addEventListener(eventType, async () => {
     await client.service('drawing').remove(null);
   })
 );
 
 ['mousedown', 'touchstart'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
-    e.preventDefault();
-    const newX = getNewX(e, eventType);
-    const newY = getNewY(e, eventType);
+    const { newX, newY } = getNewCoords(e, eventType);
     isDrawing = true;
     uuid = uuidv4();
     await client
@@ -68,9 +65,7 @@ function getNewY(e, type) {
 ['mousemove', 'touchmove'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
     if (isDrawing) {
-      e.preventDefault();
-      const newX = getNewX(e, eventType);
-      const newY = getNewY(e, eventType);
+      const { newX, newY } = getNewCoords(e, eventType);
       await client.service('drawing').patch(uuid, {
         newX,
         newY,
@@ -82,7 +77,6 @@ function getNewY(e, type) {
 
 ['mouseup', 'touchend', 'touchcancel'].forEach(eventType =>
   canvas.addEventListener(eventType, e => {
-    e.preventDefault();
     isDrawing = false;
   })
 );
@@ -102,12 +96,11 @@ const draw = ({ x, y, penColor }) => {
 };
 
 function clear() {
-  firstPointRecorded = false;
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
 client.service('drawing').on('patched', data => {
-  draw({ ...data });
+  draw(data);
 });
 
 client.service('drawing').on('removed', clear);
