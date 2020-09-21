@@ -27,6 +27,8 @@
 
       h1 {
         font-size: 5rem;
+        margin-top: 3rem;
+        margin-bottom: 3rem;
       }
 
       h3 {
@@ -37,7 +39,7 @@
       canvas {
         background-color: #282c34;
         border: solid black 1px;
-        cursor: auto;
+        cursor: url('cursor.cur'), auto;	
       }
 
       .text {
@@ -54,29 +56,64 @@
         width: 40px;
         height: 40px;
         border: 2px solid grey;
+        cursor: pointer;
       }
 
-      #clearButton,
-      #findButton {
+      #clearButton {
         cursor: pointer;
         padding: 2rem;
         margin: 2rem;
+        margin-left: 3rem;
         font-size: 2rem;
         border-radius: 10px;
         max-width: 10rem;
       }
 
-      #interactiveBar {
+      #choosePenText {
+        font-size: 3rem;
+      }
+
+      #interactiveBarContainer {
         display: flex;
         flex-direction: row;
-        max-width: 80rem;
+        justify-content: flex-start;
         align-items: center;
-        justify-content: space-around;
+      }
+
+      #colorsContainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 400px;
       }
 
       @media only screen and (max-width: 600px) {
-        #interactiveBar {
-          flex-direction: column;
+        #interactiveBarContainer {
+          max-width: 95vw;
+        }
+
+        h1 {
+          font-size: 4rem;
+          margin-top: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .colorBox {
+          width: 25px;
+          height: 25px;
+        }
+
+        #clearButton {
+          padding: 1rem;
+          margin: 1rem;
+          margin-left: 2rem;
+          font-size: 1rem;
+          border-radius: 10px;
+          max-width: 10rem;
+        }
+
+        #choosePenText {
+          font-size: 2rem;
         }
       }
     </style>
@@ -84,8 +121,10 @@
   <body>
     <div id="app">
       <div class="flexColumnContainer">
-        <h1 id="title" class="text">Outdraw</h1>
-        <canvas width="700px" height="400px"></canvas>
+        <div id="titleContainer">
+          <h1 id="title" class="text">Outdraw</h1>
+        </div>
+        <canvas></canvas>
         <div id="interactiveBar">
           <div
             style="display: flex;
@@ -94,7 +133,10 @@
             width: 350px;
             padding-top: 1rem;"
           >
-            <h3 class="text">Choose pen color:</h3>
+
+        <div id="interactiveBarContainer">
+          <div id="colorsContainer">
+          <h3 id="choosePenText" class="text">Choose pen color:</h3>
             <div
               id="rgba(215, 217, 215, 1)"
               class="colorBox colors"

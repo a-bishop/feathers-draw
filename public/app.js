@@ -7,12 +7,33 @@ client.configure(feathers.socketio(socket));
 const colorNodes = document.querySelectorAll('.colors');
 let color = colorNodes[0].id;
 
+const canvasElem = document.getElementsByTagName('canvas')[0];
+if (window.matchMedia('(max-width: 700px)').matches) {
+  /* The viewport is less than, or equal to, 700 pixels wide */
+  canvasElem.width = window.innerWidth;
+  canvasElem.height = window.innerHeight * 0.8;
+} else {
+  /* The viewport is greater than 700 pixels wide */
+  canvasElem.width = window.innerWidth * 0.5;
+  canvasElem.height = window.innerHeight * 0.5;
+}
+
 colorNodes.forEach(node =>
   node.addEventListener('click', () => (color = node.id))
 );
 
-const canvas = document.querySelector('canvas');
-const context = canvas.getContext('2d');
+let canvas = document.querySelector('canvas');
+let context = canvas.getContext('2d');
+
+let rect = canvas.getBoundingClientRect();
+
+function recalcRect() {
+  rect = canvas.getBoundingClientRect();
+}
+
+window.onresize = recalcRect;
+window.onscroll = recalcRect;
+
 const clearButton = document.querySelector('#clearButton');
 
 let isDrawing = false;
@@ -34,7 +55,6 @@ function uuidv4() {
 }
 
 function getNewCoords(e, type) {
-  const rect = canvas.getBoundingClientRect();
   const isMouseEvent = type.includes('mouse');
   const newX = isMouseEvent
     ? e.clientX - rect.left
@@ -46,13 +66,15 @@ function getNewCoords(e, type) {
 }
 
 ['click', 'touchstart'].forEach(eventType =>
-  clearButton.addEventListener(eventType, async () => {
+  clearButton.addEventListener(eventType, async e => {
+    e.preventDefault();
     await client.service('drawing').remove(null);
   })
 );
 
 ['mousedown', 'touchstart'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
+    e.preventDefault();
     const { newX, newY } = getNewCoords(e, eventType);
     isDrawing = true;
     uuid = uuidv4();
@@ -64,6 +86,7 @@ function getNewCoords(e, type) {
 
 ['mousemove', 'touchmove'].forEach(eventType =>
   canvas.addEventListener(eventType, async e => {
+    e.preventDefault();
     if (isDrawing) {
       const { newX, newY } = getNewCoords(e, eventType);
       await client.service('drawing').patch(uuid, {
