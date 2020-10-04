@@ -7,6 +7,9 @@ client.configure(feathers.socketio(socket));
 const colorNodes = document.querySelectorAll('.colors');
 let color = colorNodes[0].id;
 
+const undoButton = document.getElementById('undoButton');
+undoButton.addEventListener('click', undo);
+
 const canvasElem = document.getElementsByTagName('canvas')[0];
 if (window.matchMedia('(max-width: 700px)').matches) {
   /* The viewport is less than, or equal to, 700 pixels wide */
@@ -37,7 +40,11 @@ window.onscroll = recalcRect;
 const clearButton = document.querySelector('#clearButton');
 
 let isDrawing = false;
-let uuid;
+let uuids = [];
+
+const getLastUuid = () => {
+  return uuids[uuids.length - 1];
+};
 
 (async () => {
   const items = await client.service('drawing').find();
@@ -68,7 +75,9 @@ function getNewCoords(e, type) {
 ['click', 'touchstart'].forEach(eventType =>
   clearButton.addEventListener(eventType, async e => {
     e.preventDefault();
-    await client.service('drawing').remove(null);
+    if (confirm('Are you sure you want to remove this picture?')) {
+      await client.service('drawing').remove(null);
+    }
   })
 );
 
@@ -77,10 +86,11 @@ function getNewCoords(e, type) {
     e.preventDefault();
     const { newX, newY } = getNewCoords(e, eventType);
     isDrawing = true;
-    uuid = uuidv4();
+    const uuid = uuidv4();
+    uuids.push(uuid);
     await client
       .service('drawing')
-      .create({ _id: uuid, x: [newX], y: [newY], color });
+      .create({ _id: getLastUuid(), x: [newX], y: [newY], color });
   })
 );
 
@@ -89,10 +99,10 @@ function getNewCoords(e, type) {
     e.preventDefault();
     if (isDrawing) {
       const { newX, newY } = getNewCoords(e, eventType);
-      await client.service('drawing').patch(uuid, {
+      await client.service('drawing').patch(getLastUuid(), {
         newX,
         newY,
-        color
+        color,
       });
     }
   })
@@ -122,8 +132,23 @@ function clear() {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
+async function undo() {
+  const id = uuids.pop();
+  if (id) await client.service('drawing').remove(id);
+}
+
 client.service('drawing').on('patched', data => {
   draw(data);
 });
 
-client.service('drawing').on('removed', clear);
+client.service('drawing').on('removed', async (id) => {
+  if (id) {
+    clear();
+    const items = await client.service('drawing').find();
+    items.data.forEach(item => {
+      draw(item);
+    });
+  } else {
+    clear();
+  }
+});

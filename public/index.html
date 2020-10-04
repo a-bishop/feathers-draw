@@ -59,18 +59,33 @@
         cursor: pointer;
       }
 
-      #clearButton {
+      .editButton {
         cursor: pointer;
-        padding: 2rem;
-        margin: 2rem;
-        margin-left: 3rem;
+        padding: 1rem;
+        margin: 1rem;
+        margin-left: 1rem;
         font-size: 2rem;
         border-radius: 10px;
         max-width: 10rem;
       }
 
+      #undoButton {
+        margin-left: 2rem;
+      }
+
       #choosePenText {
         font-size: 3rem;
+      }
+
+      #titleContainer {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #editButtonsContainer {
+        justify-self: flex-end;
       }
 
       #interactiveBarContainer {
@@ -103,7 +118,7 @@
           height: 25px;
         }
 
-        #clearButton {
+        .editButton {
           padding: 1rem;
           margin: 1rem;
           margin-left: 2rem;
@@ -123,6 +138,10 @@
       <div class="flexColumnContainer">
         <div id="titleContainer">
           <h1 id="title" class="text">Outdraw</h1>
+          <div id="editButtonsContainer">
+            <button class="text editButton" id="undoButton">Undo</button>
+            <button class="text editButton" id="clearButton">Clear</button>
+          </div>
         </div>
         <canvas></canvas>
         <div id="interactiveBar">
@@ -158,7 +177,8 @@
               style="background-color: rgba(215, 180, 158, 1);"
             ></div>
           </div>
-          <button class="text" id="clearButton">Clear</button>
+          <!-- <button class="text editButton" id="undoButton">Undo</button>
+          <button class="text editButton" id="clearButton">Clear</button> -->
         </div>
       </div>
       <!-- End mainContainer -->
