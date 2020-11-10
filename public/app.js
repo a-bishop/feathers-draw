@@ -2,24 +2,31 @@
 const socket = io();
 const client = feathers();
 
+const canvasContainer = document.getElementsByClassName('canvasContainer')[0];
+
 client.configure(feathers.socketio(socket));
 
 const colorNodes = document.querySelectorAll('.colors');
 let color = colorNodes[0].id;
 
-const undoButton = document.getElementById('undoButton');
-undoButton.addEventListener('click', undo);
-
-const canvasElem = document.getElementsByTagName('canvas')[0];
+// const canvasElem = document.getElementsByTagName('canvas')[0];
+const canvasElem = document.createElement('canvas'); 
 if (window.matchMedia('(max-width: 700px)').matches) {
-  /* The viewport is less than, or equal to, 700 pixels wide */
   canvasElem.width = window.innerWidth;
   canvasElem.height = window.innerHeight * 0.8;
-} else {
-  /* The viewport is greater than 700 pixels wide */
+  canvasContainer.appendChild(canvasElem);
+} else if (window.matchMedia('(max-width: 1200px)').matches) {
+  canvasElem.width = window.innerWidth * 0.8;
+  canvasElem.height = window.innerHeight * 0.5;
+  canvasContainer.appendChild(canvasElem);
+}  else {
   canvasElem.width = window.innerWidth * 0.5;
   canvasElem.height = window.innerHeight * 0.5;
+  canvasContainer.appendChild(canvasElem);
 }
+
+const undoButton = document.getElementById('undoButton');
+undoButton.addEventListener('click', undo);
 
 colorNodes.forEach(node =>
   node.addEventListener('click', () => (color = node.id))
@@ -75,9 +82,7 @@ function getNewCoords(e, type) {
 ['click', 'touchstart'].forEach(eventType =>
   clearButton.addEventListener(eventType, async e => {
     e.preventDefault();
-    if (confirm('Are you sure you want to remove this picture?')) {
-      await client.service('drawing').remove(null);
-    }
+    await client.service('drawing').remove(null);
   })
 );
 
